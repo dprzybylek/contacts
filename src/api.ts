@@ -9,7 +9,8 @@ function delay(time: number): Promise<void> {
 
 export default async function apiData() {
   await delay(1000);
-  if (Math.random() > 0.7) {
+  if (Math.random() > 0.2) {
+    console.log("random error");
     throw new Error("Something went wrong");
   }
   cursor += 1;
