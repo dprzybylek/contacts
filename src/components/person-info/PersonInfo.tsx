@@ -19,12 +19,23 @@ export function PersonInfo(props: Props) {
     ? `${styles.wrapper} ${styles.wrapperSelected}`
     : styles.wrapper;
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div onClick={() => onSelect(id)} className={wrapperClassName}>
-      <span>ID: {id} </span>
-      <div className={styles.firstNameLastName}>{firstNameLastName}</div>
-      <div className={styles.jobTitle}>{jobTitle}</div>
-      <div className={styles.emailAddress}>{emailAddress}</div>
+      <div className={styles.avatar}>{getInitials(firstNameLastName)}</div>
+      <div className={styles.content}>
+        <div className={styles.firstNameLastName}>{firstNameLastName}</div>
+        <div className={styles.jobTitle}>{jobTitle}</div>
+        <div className={styles.emailAddress}>{emailAddress}</div>
+      </div>
     </div>
   );
 }

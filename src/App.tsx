@@ -5,6 +5,7 @@ import { ErrorMessage } from "./components/error-message/ErrorMessage";
 import { LoadMore } from "./components/load-more/LoadMore";
 import { PersonInfo } from "./components/person-info";
 import { Loader } from "./components/loader/Loader";
+import { Counter } from "./components/counter";
 
 type Contact = {
   id: string;
@@ -111,7 +112,7 @@ function App() {
     <div className="App">
       {/* TODO: add selected contacts component */}
       {data.length > 0 && (
-        <div className="selected">Selected contacts: {selected.size}</div>
+        <Counter size={selected.size} />
       )}
       <div className="list" role="list">
         {sortedData.map((personInfo) => (
