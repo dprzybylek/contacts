@@ -10,6 +10,10 @@
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
   min-width: 200px;
   align-self: flex-start;
+
+  @media (max-width: 700px) {
+    align-self: auto;
+  }
 }
 
 .label {
@@ -24,4 +28,3 @@
   font-weight: 700;
   color: #1976d2;
 }
-

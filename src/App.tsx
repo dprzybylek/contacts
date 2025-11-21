@@ -1,9 +1,9 @@
 import { useState, useCallback } from "react";
 
-import { ErrorMessage } from "./components/error-message/ErrorMessage";
-import { LoadMore } from "./components/load-more/LoadMore";
+import { ErrorMessage } from "./components/error-message";
+import { LoadMore } from "./components/load-more";
 import { PersonInfo } from "./components/person-info";
-import { Loader } from "./components/loader/Loader";
+import { Loader } from "./components/loader";
 import { Counter } from "./components/counter";
 import { useFetchContacts } from "./hooks/useFetchContacts";
 import { getSortedData } from "./helpers/getSortedData";

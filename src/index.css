@@ -19,4 +19,9 @@ code {
   margin: 20px 0;
   gap: 20px;
   min-height: 100vh;
+
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+  }
 }
