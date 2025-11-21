@@ -1,6 +1,9 @@
-import styles from './styles.module.css'
+import type React from "react";
+import { memo, useCallback, useMemo } from "react";
+import styles from "./styles.module.css";
+import { getInitials } from "src/helpers/getInitials";
 
-type Props = {
+type PersonInfoProps = {
   data: {
     id: string;
     firstNameLastName: string;
@@ -11,31 +14,36 @@ type Props = {
   onSelect: (id: string) => void;
 };
 
-export function PersonInfo(props: Props) {
-  const { data, isSelected, onSelect } = props;
-  const { id, firstNameLastName, jobTitle, emailAddress } = data;
-  //TODO: add default photo for each contact
-  const wrapperClassName = isSelected
-    ? `${styles.wrapper} ${styles.wrapperSelected}`
-    : styles.wrapper;
+export const PersonInfo: React.FC<PersonInfoProps> = memo(
+  ({ data, isSelected, onSelect }: PersonInfoProps): React.ReactElement => {
+    const { id, firstNameLastName, jobTitle, emailAddress } = data;
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
+    const wrapperClassName = isSelected
+      ? `${styles.wrapper} ${styles.wrapperSelected}`
+      : styles.wrapper;
 
-  return (
-    <div onClick={() => onSelect(id)} className={wrapperClassName}>
-      <div className={styles.avatar}>{getInitials(firstNameLastName)}</div>
-      <div className={styles.content}>
-        <div className={styles.firstNameLastName}>{firstNameLastName}</div>
-        <div className={styles.jobTitle}>{jobTitle}</div>
-        <div className={styles.emailAddress}>{emailAddress}</div>
+    const initials = useMemo(
+      () => getInitials(firstNameLastName),
+      [firstNameLastName]
+    );
+
+    const handleSelect = useCallback(() => onSelect(id), [id, onSelect]);
+
+    return (
+      <div onClick={handleSelect} className={wrapperClassName}>
+        <div className={styles.avatar}>{initials}</div>
+        <div className={styles.content}>
+          <div className={styles.firstNameLastName}>{firstNameLastName}</div>
+          <div className={styles.jobTitle}>{jobTitle}</div>
+          <div className={styles.emailAddress}>{emailAddress}</div>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+  (prevProps, nextProps: PersonInfoProps) => {
+    return (
+      prevProps.data.id === nextProps.data.id &&
+      prevProps.isSelected === nextProps.isSelected
+    );
+  }
+);

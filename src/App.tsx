@@ -1,13 +1,14 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import apiData from "./api";
+import { useState, useCallback } from "react";
 
 import { ErrorMessage } from "./components/error-message/ErrorMessage";
 import { LoadMore } from "./components/load-more/LoadMore";
 import { PersonInfo } from "./components/person-info";
 import { Loader } from "./components/loader/Loader";
 import { Counter } from "./components/counter";
+import { useFetchContacts } from "./hooks/useFetchContacts";
+import { getSortedData } from "./helpers/getSortedData";
 
-type Contact = {
+export type Contact = {
   id: string;
   firstNameLastName: string;
   jobTitle: string;
@@ -15,65 +16,12 @@ type Contact = {
 };
 
 function App() {
-  const [data, setData] = useState<Contact[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, isLoadingMore, error, fetchContacts } =
+    useFetchContacts();
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const hasDataRef = useRef(false);
-  // Ref used for synchronous race condition protection - prevents concurrent fetch calls.
-  // Unlike state, ref updates don't trigger re-renders, allowing immediate blocking.
-  // For UI updates, use isLoadingMore state instead.
-  const isFetching = useRef(false);
 
-  const fetchContacts = useCallback(async () => {
-    if (isFetching.current) {
-      console.log("Fetching already in progress");
-      return;
-    }
-
-    const isFirstFetch = !hasDataRef.current;
-    isFetching.current = true;
-
-    try {
-      if (isFirstFetch) {
-        setIsLoading(true);
-      } else {
-        setIsLoadingMore(true);
-      }
-      const contacts = await apiData();
-
-      if (isFirstFetch) {
-        setData(contacts);
-        setIsLoading(false);
-        hasDataRef.current = true;
-        setError(null);
-      } else {
-        setData((prev) => {
-          return [...prev, ...contacts];
-        });
-        setIsLoadingMore(false);
-        setError(null);
-      }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Something went wrong";
-      setError(errorMessage);
-      setIsLoading(false);
-      setIsLoadingMore(false);
-    } finally {
-      isFetching.current = false;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (hasDataRef.current === false) {
-      fetchContacts();
-    }
-  }, [fetchContacts]);
-
-  const handleSelect = useCallback((id: string) => {
-    setSelected((selected) => {
+  const handleSelect = useCallback((id: string): void => {
+    setSelected((selected: Set<string>) => {
       const newSelected = new Set(selected);
       if (newSelected.has(id)) {
         newSelected.delete(id);
@@ -84,21 +32,6 @@ function App() {
     });
   }, []);
 
-  const sortedData = useMemo(() => {
-    const selectedContacts: Contact[] = [];
-    const unselectedContacts: Contact[] = [];
-
-    data.forEach((contact) => {
-      if (selected.has(contact.id)) {
-        selectedContacts.push(contact);
-      } else {
-        unselectedContacts.push(contact);
-      }
-    });
-
-    return [...selectedContacts, ...unselectedContacts];
-  }, [data, selected]);
-
   if (isLoading) {
     return (
       <div className="App">
@@ -107,15 +40,13 @@ function App() {
     );
   }
 
-  /* TODO: fix wide items changing the whole list layout */
+  const sortedData: Contact[] = getSortedData(data, selected);
+
   return (
     <div className="App">
-      {/* TODO: add selected contacts component */}
-      {data.length > 0 && (
-        <Counter size={selected.size} />
-      )}
+      {data.length > 0 && <Counter size={selected.size} />}
       <div className="list" role="list">
-        {sortedData.map((personInfo) => (
+        {sortedData.map((personInfo: Contact) => (
           <PersonInfo
             key={personInfo.id}
             data={personInfo}

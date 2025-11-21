@@ -1,5 +1,5 @@
 import styles from "./styles.module.css";
 
-export const Spinner = () => {
-  return <span className={styles.spinner} />;
-};
+export const Spinner: React.FC = (): React.ReactElement => (
+  <span className={styles.spinner} />
+);
