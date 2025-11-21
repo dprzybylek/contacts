@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import apiData from "./api";
-import PersonInfo from "./PersonInfo";
+
 import { ErrorMessage } from "./components/error-message/ErrorMessage";
 import { LoadMore } from "./components/load-more/LoadMore";
+import { PersonInfo } from "./components/person-info";
+import { Loader } from "./components/loader/Loader";
 
 type Contact = {
   id: string;
@@ -24,11 +26,11 @@ function App() {
   const isFetching = useRef(false);
 
   const fetchContacts = useCallback(async () => {
-    if(isFetching.current) {
-      console.log('Fetching already in progress');
-      return
+    if (isFetching.current) {
+      console.log("Fetching already in progress");
+      return;
     }
-    
+
     const isFirstFetch = !hasDataRef.current;
     isFetching.current = true;
 
@@ -46,9 +48,9 @@ function App() {
         hasDataRef.current = true;
         setError(null);
       } else {
-        setData(prev => {
-          return [...prev, ...contacts]
-        })
+        setData((prev) => {
+          return [...prev, ...contacts];
+        });
         setIsLoadingMore(false);
         setError(null);
       }
@@ -58,8 +60,7 @@ function App() {
       setError(errorMessage);
       setIsLoading(false);
       setIsLoadingMore(false);
-    }
-    finally {
+    } finally {
       isFetching.current = false;
     }
   }, []);
@@ -100,10 +101,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="App">
-        <div role="status" aria-live="polite">
-          {/* TODO: add loading spinner */}
-          Loading contacts...
-        </div>
+        <Loader />
       </div>
     );
   }
@@ -113,9 +111,7 @@ function App() {
     <div className="App">
       {/* TODO: add selected contacts component */}
       {data.length > 0 && (
-        <div className="selected" aria-live="polite">
-          Selected contacts: {selected.size}
-        </div>
+        <div className="selected">Selected contacts: {selected.size}</div>
       )}
       <div className="list" role="list">
         {sortedData.map((personInfo) => (
@@ -127,7 +123,11 @@ function App() {
           />
         ))}
         {error && (
-          <ErrorMessage error={error} onRetry={() => fetchContacts()} isFetching={isLoadingMore} />
+          <ErrorMessage
+            error={error}
+            onRetry={() => fetchContacts()}
+            isFetching={isLoadingMore || isLoading}
+          />
         )}
         {!error && (
           <LoadMore

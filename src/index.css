@@ -15,8 +15,9 @@ code {
   text-align: center;
   display: flex;
   justify-content: center;
-  align-items: space-between;
+  align-items: center;
   margin: 20px 0;
+  min-height: 100vh;
 }
 
 .selected {
@@ -24,29 +25,4 @@ code {
   font-size: 26px;
   font-weight: 700;
   margin: 10px 20px 0 0;
-}
-
-.person-info:hover {
-  padding: 30px;
-  border: 2px solid pink;
-}
-
-.firstNameLastName {
-  padding: 0 0 10px;
-  color: #333333;
-  font-size: 26px;
-  font-weight: 700;
-}
-
-.jobTitle {
-  padding: 0 0 20px;
-  color: #e74c3c;
-  font-size: 20px;
-  font-weight: 400;
-}
-
-.emailAddress {
-  color: #666666;
-  font-size: 14px;
-  line-height: 1.8em;
 }
