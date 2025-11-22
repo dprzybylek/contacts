@@ -7,6 +7,7 @@ import { Loader } from "./components/loader";
 import { Counter } from "./components/counter";
 import { useFetchContacts } from "./hooks/useFetchContacts";
 import { getSortedData } from "./helpers/getSortedData";
+import styles from "./App.module.css";
 
 export type Contact = {
   id: string;
@@ -18,10 +19,9 @@ export type Contact = {
 function App() {
   const { data, isLoading, isLoadingMore, error, fetchContacts } =
     useFetchContacts();
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-
-  const handleSelect = useCallback((id: string): void => {
-    setSelected((selected: Set<string>) => {
+  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
+  const toggleSelectContact = useCallback((id: string): void => {
+    setSelectedContacts((selected: Set<string>) => {
       const newSelected = new Set(selected);
       if (newSelected.has(id)) {
         newSelected.delete(id);
@@ -34,37 +34,37 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="App">
+      <div className={styles.app}>
         <Loader />
       </div>
     );
   }
 
-  const sortedData: Contact[] = getSortedData(data, selected);
+  const sortedContacts: Contact[] = getSortedData(data, selectedContacts);
 
   return (
-    <div className="App">
-      {data.length > 0 && <Counter size={selected.size} />}
-      <div className="list" role="list">
-        {sortedData.map((personInfo: Contact) => (
+    <div className={styles.app}>
+      {data.length > 0 && <Counter size={selectedContacts.size} />}
+      <div>
+        {sortedContacts.map((contact: Contact) => (
           <PersonInfo
-            key={personInfo.id}
-            data={personInfo}
-            isSelected={selected.has(personInfo.id)}
-            onSelect={handleSelect}
+            key={contact.id}
+            data={contact}
+            isSelected={selectedContacts.has(contact.id)}
+            onSelect={() => toggleSelectContact(contact.id)}
           />
         ))}
         {error && (
           <ErrorMessage
             error={error}
-            onRetry={() => fetchContacts()}
+            onRetry={fetchContacts}
             isFetching={isLoadingMore || isLoading}
           />
         )}
         {!error && (
           <LoadMore
             isLoadingMore={isLoadingMore}
-            onLoadMore={() => fetchContacts()}
+            onLoadMore={fetchContacts}
             aria-label={`Load more contacts. Currently showing ${data.length} contacts`}
           />
         )}

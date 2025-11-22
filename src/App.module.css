@@ -1,0 +1,14 @@
+.app {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1.25rem 0;
+    gap: 1.25rem;
+    min-height: 100vh;
+  
+    @media (max-width: 700px) {
+      flex-direction: column;
+    }
+  }
+  
