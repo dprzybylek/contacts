@@ -14,8 +14,14 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   isFetching,
 }: ErrorMessageProps): React.ReactElement => (
   <div role="alert" className={styles.wrapper}>
-    <div className={styles.errorMessage}>{error}</div>
-    <button onClick={onRetry} className={styles.retryButton} disabled={isFetching}>
+    <div className={styles.errorMessage} data-testid="error-message">
+      {error}
+    </div>
+    <button
+      onClick={onRetry}
+      className={styles.retryButton}
+      disabled={isFetching}
+    >
       {isFetching && <Spinner />}
       Retry
     </button>

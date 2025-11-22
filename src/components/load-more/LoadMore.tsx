@@ -5,11 +5,20 @@ import styles from "./styles.module.css";
 type LoadMoreProps = {
   isLoadingMore: boolean;
   onLoadMore: () => void;
-};  
+};
 
-export const LoadMore:React.FC<LoadMoreProps> = ({ isLoadingMore, onLoadMore }: LoadMoreProps): React.ReactElement => (
-  <button className={styles.button} onClick={onLoadMore} disabled={isLoadingMore}>
+export const LoadMore: React.FC<LoadMoreProps> = ({
+  isLoadingMore,
+  onLoadMore,
+}: LoadMoreProps): React.ReactElement => (
+  <button
+    className={styles.button}
+    onClick={onLoadMore}
+    disabled={isLoadingMore}
+  >
     {isLoadingMore && <Spinner />}
-    <span>{isLoadingMore ? "Loading..." : "Load more"}</span>
+    <span data-testid="load-more-text">
+      {isLoadingMore ? "Loading..." : "Load more"}
+    </span>
   </button>
 );
