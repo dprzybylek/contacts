@@ -1,21 +1,100 @@
-import React from "react";
-import apiData from "./api";
-import PersonInfo from "./PersonInfo";
+import { useState, useCallback } from "react";
+import { List, ListRowProps } from "react-virtualized";
+
+import { ErrorMessage } from "./components/error-message";
+import { LoadMore } from "./components/load-more";
+import { PersonInfo } from "./components/person-info";
+import { Loader } from "./components/loader";
+import { Counter } from "./components/counter";
+import { useFetchContacts } from "./hooks/useFetchContacts";
+import { getSortedData } from "./helpers/getSortedData";
+import styles from "./App.module.css";
+
+export type Contact = {
+  id: string;
+  firstNameLastName: string;
+  jobTitle: string;
+  emailAddress: string;
+};
 
 function App() {
-  const [data, setData] = React.useState([]);
-  const [selected, setSelected] = React.useState([]);
+  const { data, isLoading, isLoadingMore, error, fetchContacts } =
+    useFetchContacts();
+  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(
+    new Set()
+  );
+  const toggleSelectContact = useCallback((id: string): void => {
+    setSelectedContacts((selected: Set<string>) => {
+      const newSelected = new Set(selected);
+      if (newSelected.has(id)) {
+        newSelected.delete(id);
+      } else {
+        newSelected.add(id);
+      }
+      return newSelected;
+    });
+  }, []);
 
-  //  TODO fetch contacts using apiData function, handle loading and error states
+  const sortedContacts: Contact[] = getSortedData(data, selectedContacts);
 
+  const rowRenderer = useCallback(
+    ({ index, key, style }: ListRowProps) => {
+      const contact = sortedContacts[index];
+      return (
+        <div key={key} style={style}>
+          <div
+            style={{
+             padding: "2px" 
+            }}
+          >
+            <PersonInfo
+              data={contact}
+              isSelected={selectedContacts.has(contact.id)}
+              onSelect={() => toggleSelectContact(contact.id)}
+            />
+          </div>
+        </div>
+      );
+    },
+    [sortedContacts, selectedContacts, toggleSelectContact]
+  );
+
+  if (isLoading) {
+    return (
+      <div className={styles.app}>
+        <Loader />
+      </div>
+    );
+  }
   return (
-    <div className="App">
-      <div className="selected">Selected contacts: {selected.length}</div>
-      <div className="list">
-        {data.map((personInfo) => (
-          // @ts-ignore
-          <PersonInfo key={personInfo.id} data={personInfo} />
-        ))}
+    <div className={styles.app}>
+      {data.length > 0 && <Counter size={selectedContacts.size} />}
+      <div className={styles.listWrapper}>
+        {sortedContacts.length > 0 && (
+          <List
+            className={styles.List}
+            height={600}
+            rowCount={sortedContacts.length}
+            rowHeight={124}
+            rowRenderer={rowRenderer}
+            width={320}
+          />
+        )}
+
+        {error && (
+          <ErrorMessage
+            error={error}
+            onRetry={fetchContacts}
+            isFetching={isLoadingMore || isLoading}
+          />
+        )}
+        {!error && (
+          <LoadMore
+            isLoadingMore={isLoadingMore}
+            onLoadMore={fetchContacts}
+            aria-label={`Load more contacts. Currently showing ${data.length} contacts`}
+          />
+        )}
       </div>
     </div>
   );

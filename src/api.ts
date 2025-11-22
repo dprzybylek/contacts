@@ -15,5 +15,12 @@ export default async function apiData() {
   cursor += 1;
   const start = cursor * size;
   const end = cursor * size + size;
+
+  const isLastBatch = cursor * size >= mockData.length;
+
+  //Throwing error is not the best way to handle this, but it's a quick and dirty way to handle the last batch.
+  if (isLastBatch) {
+    throw new Error("That's all the data we have");
+  }
   return mockData.slice(start, end);
 }
