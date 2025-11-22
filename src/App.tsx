@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { List, ListRowProps } from "react-virtualized";
 
 import { ErrorMessage } from "./components/error-message";
 import { LoadMore } from "./components/load-more";
@@ -19,7 +20,9 @@ export type Contact = {
 function App() {
   const { data, isLoading, isLoadingMore, error, fetchContacts } =
     useFetchContacts();
-  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
+  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(
+    new Set()
+  );
   const toggleSelectContact = useCallback((id: string): void => {
     setSelectedContacts((selected: Set<string>) => {
       const newSelected = new Set(selected);
@@ -32,6 +35,30 @@ function App() {
     });
   }, []);
 
+  const sortedContacts: Contact[] = getSortedData(data, selectedContacts);
+
+  const rowRenderer = useCallback(
+    ({ index, key, style }: ListRowProps) => {
+      const contact = sortedContacts[index];
+      return (
+        <div key={key} style={style}>
+          <div
+            style={{
+             padding: "2px" 
+            }}
+          >
+            <PersonInfo
+              data={contact}
+              isSelected={selectedContacts.has(contact.id)}
+              onSelect={() => toggleSelectContact(contact.id)}
+            />
+          </div>
+        </div>
+      );
+    },
+    [sortedContacts, selectedContacts, toggleSelectContact]
+  );
+
   if (isLoading) {
     return (
       <div className={styles.app}>
@@ -39,21 +66,21 @@ function App() {
       </div>
     );
   }
-
-  const sortedContacts: Contact[] = getSortedData(data, selectedContacts);
-
   return (
     <div className={styles.app}>
       {data.length > 0 && <Counter size={selectedContacts.size} />}
-      <div>
-        {sortedContacts.map((contact: Contact) => (
-          <PersonInfo
-            key={contact.id}
-            data={contact}
-            isSelected={selectedContacts.has(contact.id)}
-            onSelect={() => toggleSelectContact(contact.id)}
+      <div className={styles.listWrapper}>
+        {sortedContacts.length > 0 && (
+          <List
+            className={styles.List}
+            height={600}
+            rowCount={sortedContacts.length}
+            rowHeight={124}
+            rowRenderer={rowRenderer}
+            width={320}
           />
-        ))}
+        )}
+
         {error && (
           <ErrorMessage
             error={error}

@@ -11,6 +11,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
   min-height: 40px;
+  margin-top: 0.5rem;
 }
 
 .button:hover:not(:disabled) {
